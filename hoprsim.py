@@ -75,14 +75,14 @@ def selectChannel(weights, weightIndexToNodeLUT):
 # as defined in CT draft proposal
 def openCtChannels(stake):
     # initialize CT values
-    # maximal number of channels that a CT node can maintain
-    maxCtChannels = 4
+    # number of channels that a CT node can maintain
+    CtChannelsPerNode = 100
     # number of tokens that CT node can stake in their channels
-    tokensToStake = Decimal("1000")
+    tokensToStake = Decimal("5")
     # each winning ticket costs this many tokens
     tokensPerTicket = Decimal("0.1")
     # probability that a certain ticket is a win (1 = 100%)
-    winningProbability = 1
+    winningProbability = 0.1
 
     # get total stake per node
     stakePerNode = [Decimal(sum(e)) for e in stake]
