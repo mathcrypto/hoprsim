@@ -152,8 +152,7 @@ def openCtChannels(stake):
     return ctChannelBalance, ctChannelParty, ctPriorityList, packets
 
 def numPackets (stake):
-    n = len(stake)
-    weightedDownstreamStake = [0] * n
+
 
      #For x in range(numNodes):
      #we recover the number of stake given to each party
