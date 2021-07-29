@@ -17,7 +17,7 @@ stakePerNode = 400
 # setting up a stake matrix for a user-defined number of nodes
 # random number of channels per node between min and max params
 
-def setupChannnel(
+def setupStake(
         numNodes=10,
         minChannelsPerNode=2,
         maxChannelsPerNode=7,
