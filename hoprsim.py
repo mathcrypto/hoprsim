@@ -154,17 +154,14 @@ def openCtChannels(stake):
 def numPackets (stake):
     n = len(stake)
     weightedDownstreamStake = [0] * n
-    for x in range(n):
-        for y in range(n):
-            weightedDownstreamStake[y] += 0 if stakePerNode[y]==0 else numpy.sqrt(stake[y][x]/stakePerNode[y] * packetsPerNode[x]/otherTotalStake[y])
 
      #For x in range(numNodes):
      #we recover the number of stake given to each party
     #stake = setupStake()
     #each token is represented by 1 HOPR and there are 0.1 tokens in each ticket which means 1 token needs 10 tickets
-    tickets = 10*setupStake()
+    tickets = 10*stakePerNode
     packets = tickets
-   return packets
+    return packets
 
 def drawGraph(stake):
     """
