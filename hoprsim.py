@@ -1,9 +1,9 @@
 # import hoprsim
 #stake = [
-#    [0, 1, 2, 3],
-#    [3, 0, 1, 2],
-#    [2, 1, 0, 1],
-#    [1, 2, 3, 0]
+#    [0, 400, 400, 400],
+#    [400, 0, 400, 400],
+#    [400, 400, 0, 400],
+#    [400, 400, 400, 0]
 #]
 #hoprsim.drawGraph(stake)
 
@@ -12,21 +12,22 @@ import matplotlib.pyplot as plt
 import numpy
 from decimal import *
 
+#setting up a global stake value given to each node
+stakePerNode = 400
 # setting up a stake matrix for a user-defined number of nodes
-# random number of channels and funds per node between min and max params
-def setupStake(
+# random number of channels per node between min and max params
+
+def setupChannnel(
         numNodes=10,
         minChannelsPerNode=2,
         maxChannelsPerNode=7,
-        minFundsPerNode=10,
-        maxFundsPerNode=100,
         tokensPerTicket=0.1
     ):
 
     stake = [[0 for i in range(numNodes)] for j in range(numNodes)]
     for x in range(numNodes):
-        # get random amount of funds per node
-        myFunds = numpy.random.rand() * (maxFundsPerNode - minFundsPerNode) + minFundsPerNode
+        # get equal stake per node 
+        myFunds = stakePerNode 
 
         # get random number of channels per node
         myChannels = int(numpy.random.rand() * (maxChannelsPerNode - minChannelsPerNode + 1) + minChannelsPerNode)
@@ -42,7 +43,7 @@ def setupStake(
             if counterparty >= x:
                 counterparty = counterparty + 1
             stake[x][counterparty] = stakePerChannel
-    stake = [[Decimal(i) for i in j] for j in stake]
+            stake = [[Decimal(i) for i in j] for j in stake]
     return stake
 
 
@@ -140,14 +141,30 @@ def openCtChannels(stake):
         ctChannelParty[i[0]] = topStakeIndices[i[0]]
         tokensLeft -= roundedAllocation
         stakeLeft -= i[1]
+        tickets = 10*setupStake()
+        packets = tickets
         #print("rounded allocation: ", roundedAllocation)
 
     #print("--> channels opened to nodes: ", ctChannelParty)
     #print("--> channel allocations: ", ctChannelBalance)
     #print("CT priority list: ", ctPriorityList)
     # TODO for performance improvements in a real network with many small nodes, remove empty channels that did not receive any stake after rounding down
-    return ctChannelBalance, ctChannelParty, ctPriorityList
+    return ctChannelBalance, ctChannelParty, ctPriorityList, packets
 
+def numPackets (stake):
+    n = len(stake)
+    weightedDownstreamStake = [0] * n
+    for x in range(n):
+        for y in range(n):
+            weightedDownstreamStake[y] += 0 if stakePerNode[y]==0 else numpy.sqrt(stake[y][x]/stakePerNode[y] * packetsPerNode[x]/otherTotalStake[y])
+
+     #For x in range(numNodes):
+     #we recover the number of stake given to each party
+    #stake = setupStake()
+    #each token is represented by 1 HOPR and there are 0.1 tokens in each ticket which means 1 token needs 10 tickets
+    tickets = 10*setupStake()
+    packets = tickets
+   return packets
 
 def drawGraph(stake):
     """
