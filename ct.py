@@ -11,6 +11,7 @@ import hoprsim
 # diagonal has to be empty as node cannot fund channel to self
 # value 1 in second value of first row means node A staked 1 HOPR in channel with B
 
+
 stake = hoprsim.setupStake(15, 2, 8)
 #print("stake matrix: ", numpy.matrix(stake))
 
