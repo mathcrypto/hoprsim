@@ -18,7 +18,7 @@ stakePerNode = 400
 # random number of channels per node between min and max params
 
 def setupStake(
-        numNodes=10,
+        numNodes=100,
         minChannelsPerNode=2,
         maxChannelsPerNode=7,
         tokensPerTicket=0.1
@@ -76,7 +76,7 @@ def selectChannel(weights, weightIndexToNodeLUT):
 def openCtChannels(stake):
     # initialize CT values
     # number of channels that a CT node can maintain
-    CtChannelsPerNode = 100
+    CtChannelsPerNode = 10
     # number of tokens that CT node can stake in their channels
     tokensToStake = Decimal("5")
     # each winning ticket costs this many tokens
@@ -126,7 +126,7 @@ def openCtChannels(stake):
 
     tokensLeft = tokensToStake # tokens that are left to be distributed
     stakeLeft = totalTopStake # stake that is left to be processed
-    ctChannelBalance = [0] * maxCtChannels # amounts in payment channels that CT node opens
+    ctChannelBalance = [0] * maxCtChannels 
     ctChannelParty = [0] * maxCtChannels # counterparty of payment channel that CT node opens
     for i in enumerate(topStakeAmounts):
         #print("allocation: ", i)
@@ -137,7 +137,7 @@ def openCtChannels(stake):
         #print("non-rounded allocation: ", nonRoundedAllocation)
         # calculate rounded payout
         roundedAllocation = int(nonRoundedAllocation/tokensPerTicket) * tokensPerTicket
-        ctChannelBalance[i[0]] = roundedAllocation
+        ctChannelBalance[i[0]] = 5  # every channel is funded with same amount
         ctChannelParty[i[0]] = topStakeIndices[i[0]]
         tokensLeft -= roundedAllocation
         stakeLeft -= i[1]
