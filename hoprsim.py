@@ -1,36 +1,35 @@
 # import hoprsim
-#stake = [
-#    [0, 400, 400, 400],
-#    [400, 0, 400, 400],
-#    [400, 400, 0, 400],
-#    [400, 400, 400, 0]
-#]
-#hoprsim.drawGraph(stake)
+
+
 
 import networkx as nx
 import matplotlib.pyplot as plt
 import numpy
 from decimal import *
 
-#setting up a global stake value given to each node
-stakePerNode = 400
+
 # setting up a stake matrix for a user-defined number of nodes
 # random number of channels per node between min and max params
 
 def setupStake(
         numNodes=100,
+        # the minimum number of channels a node can open
         minChannelsPerNode=2,
+        # the maximum number of channels a node can open 
         maxChannelsPerNode=10,
+        minFundsPerNode=10,
+        maxFundsPerNode=100,
         tokensPerTicket=0.1
     ):
 
     stake = [[0 for i in range(numNodes)] for j in range(numNodes)]
     for x in range(numNodes):
-        # get equal stake per node 
-        myFunds = stakePerNode 
+     
+        myFunds = numpy.random.rand() * (maxFundsPerNode - minFundsPerNode) + minFundsPerNode
 
         # get random number of channels per node
         myChannels = int(numpy.random.rand() * (maxChannelsPerNode - minChannelsPerNode + 1) + minChannelsPerNode)
+       
 
         stakePerChannel = myFunds / myChannels
         stakePerChannel = int(stakePerChannel / tokensPerTicket) * tokensPerTicket
@@ -49,35 +48,12 @@ def setupStake(
 
 
 
-# selects a random payment channel
-# weights: list of likelihoods that each entry is selected. This list does not need to be normalized to 1
-# weightIndexToNodeLUT: look up table translating the position in the weights list to a node number (e.g. in stake matrix)
-# returns: node number that has been selected
-def selectChannel(weights, weightIndexToNodeLUT):
-    rand = numpy.random.rand()
-    totalWeight = sum(weights)
-    sumWeights = 0
-    counterparty = -1
-    for i in enumerate(weights):
-        sumWeights += i[1]
-        if sumWeights / totalWeight >= rand:
-            counterparty = weightIndexToNodeLUT[i[0]]
-            #print("selected counterparty: ", counterparty)
-            break;
-    if counterparty == -1:
-        counterparty = weightIndexToNodeLUT[len(weights) - 1]
-        #print("selected last counterparty", counterparty)
-    return counterparty
-
-
-
-
+# opens a random payment channel
 # takes the stake matrix as parameter and returns list of balances, counter party ids (same as state matrix) and p(n)
-# as defined in CT draft proposal
 def openCtChannels(stake):
     # initialize CT values
     # number of channels that a CT node can maintain
-    CtChannelsPerNode = 10
+    CtChannelsPerNode = 100
     # number of tokens that CT node can stake in their channels
     tokensToStake = Decimal("5")
     # each winning ticket costs this many tokens
@@ -141,10 +117,5 @@ def openCtChannels(stake):
         ctChannelBalance[i[0]] = 5  # every channel is funded with same amount
         ctChannelParty[i[0]] = topStakeIndices[i[0]]
      
-        #print("rounded allocation: ", roundedAllocation)
-
-    #print("--> channels opened to nodes: ", ctChannelParty)
-    #print("--> channel allocations: ", ctChannelBalance)
-    #print("CT priority list: ", ctPriorityList)
-    # TODO for performance improvements in a real network with many small nodes, remove empty channels that did not receive any stake after rounding down
+    
     return ctChannelBalance, ctChannelParty, ctPriorityList
