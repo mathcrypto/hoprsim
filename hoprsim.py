@@ -53,7 +53,7 @@ def setupStake(
 def openCtChannels(stake):
     # initialize CT values
     # number of channels that a CT node can maintain
-    CtChannelsPerNode = 100
+    maxCtChannels = 100
     # number of tokens that CT node can stake in their channels
     tokensToStake = Decimal("5")
     # each winning ticket costs this many tokens
