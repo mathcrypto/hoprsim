@@ -1,7 +1,4 @@
 # import hoprsim
-
-
-
 import networkx as nx
 import matplotlib.pyplot as plt
 import numpy
@@ -12,6 +9,7 @@ from decimal import *
 # random number of channels per node between min and max params
 
 def setupStake(
+        # Number of nodes in the network. This number can be changed to test with small and large network size
         numNodes=100,
         # the minimum number of channels a node can open
         minChannelsPerNode=2,
@@ -24,19 +22,20 @@ def setupStake(
 
     stake = [[0 for i in range(numNodes)] for j in range(numNodes)]
     for x in range(numNodes):
-     
+        # each node is given a random funding amount
         myFunds = numpy.random.rand() * (maxFundsPerNode - minFundsPerNode) + minFundsPerNode
 
         # get random number of channels per node
         myChannels = int(numpy.random.rand() * (maxChannelsPerNode - minChannelsPerNode + 1) + minChannelsPerNode)
        
-
+        # This value represents the amount each node stakes in their channel
+        # It is computed as the number of funds a node has divided by number of channels they open
         stakePerChannel = myFunds / myChannels
         stakePerChannel = int(stakePerChannel / tokensPerTicket) * tokensPerTicket
 
         # fund channels by writing into stake matrix
         for c in range(myChannels):
-            # TODO: this does not prevent a node from opening a channel to the same counterparty multiple times
+            # this does not prevent a node from opening a channel to the same counterparty multiple times
             counterparty = int(numpy.random.rand() * (numNodes - 1))
 
             # cannot open channel to self - keep diagonal of matrix at 0
@@ -49,17 +48,11 @@ def setupStake(
 
 
 # opens a random payment channel
-# takes the stake matrix as parameter and returns list of balances, counter party ids (same as state matrix) and p(n)
+# takes the stake matrix as parameter and returns list of balances and counter party ids
 def openCtChannels(stake):
-    # initialize CT values
-    # number of channels that a CT node can maintain
-    maxCtChannels = 100
-    # number of tokens that CT node can stake in their channels
-    tokensToStake = Decimal("5")
-    # each winning ticket costs this many tokens
-    tokensPerTicket = Decimal("0.1")
-    # probability that a certain ticket is a win (1 = 100%)
-    winningProbability = 0.1
+ 
+    # number of channels that a CT node can maintain. We chose the value 10 for testing purposes and it can change accordingly 
+    maxCtChannels = 10
 
     # get total stake per node
     stakePerNode = [Decimal(sum(e)) for e in stake]
@@ -94,28 +87,12 @@ def openCtChannels(stake):
     topStakeAmounts = [ctPriorityList[i[1]] for i in enumerate(topStakeIndices)]
 
     #print(sortedPrioList)
-    # calculate total stake in top maxCtChannels
-    totalTopStake = sum(topStakeAmounts)
-
-    # allocate tokensToStake to the top most staked maxCtChannels nodes
-    # round to tokensPerTicket and deal with rounding errors by using the Kahan Summation
     # ordering of entries should be randomized to prevent users from positioning themselves at the right spot with small stake and benefit from receiving a channel
-
-    tokensLeft = tokensToStake # tokens that are left to be distributed
-    stakeLeft = totalTopStake # stake that is left to be processed
     ctChannelBalance = [0] * maxCtChannels 
     ctChannelParty = [0] * maxCtChannels # counterparty of payment channel that CT node opens
     for i in enumerate(topStakeAmounts):
-        #print("allocation: ", i)
-        #print("tokens left: ", tokensLeft, ", stake left: ", stakeLeft)
-        # calculate token allocation for node (non-rounded)
-        nonRoundedAllocation = i[1] / stakeLeft * tokensLeft
-
-        #print("non-rounded allocation: ", nonRoundedAllocation)
-        # calculate rounded payout
-        roundedAllocation = int(nonRoundedAllocation/tokensPerTicket) * tokensPerTicket
         ctChannelBalance[i[0]] = 5  # every channel is funded with same amount
         ctChannelParty[i[0]] = topStakeIndices[i[0]]
      
     
-    return ctChannelBalance, ctChannelParty, ctPriorityList
+    return ctChannelParty, ctPriorityList

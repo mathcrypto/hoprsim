@@ -32,38 +32,3 @@ availableChannels = [i for i, element in enumerate(stake[counterparty]) if eleme
 
 weights = [ctPriorityList[i] for i in availableChannels]
 #print("weights: ", weights)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
