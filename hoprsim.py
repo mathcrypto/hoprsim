@@ -67,8 +67,11 @@ def selectChannel(weights, weightIndexToNodeLUT):
 # takes the stake matrix as parameter and returns list of balances and counter party ids
 def openCtChannels(stake):
  
-    # number of channels that a CT node can maintain. We chose the value 10 for testing purposes and it can change accordingly 
+    # number of channels we want to open
     maxCtChannels = 10
+
+    # stake value for each opened channel. we fix this value for testing purposes
+    channelStake= 5
 
     # get total stake per node
     stakePerNode = [Decimal(sum(e)) for e in stake]
@@ -77,25 +80,29 @@ def openCtChannels(stake):
    
     otherTotalStake = [totalStake - i for i in stakePerNode]
     n = len(stake)
+    weight = [0] * n
     importance = [0] * n
     for x in range(n):
         for y in range(n):
-            importance[y] += 0 if stakePerNode[y]==0 else numpy.sqrt(stake[y][x]/stakePerNode[y] * stakePerNode[x]/otherTotalStake[y])
+            # weight of a node is 0 if its stake is equal to 0
+            #weight(channel) = sqrt(balance(channel) / stake(channel.source) * stake(channel.destination))
+            weight[y] += 0 if stakePerNode[y]==0 else numpy.sqrt(stake[y][x]/stakePerNode[y] * stakePerNode[x])
 
-    ctPriorityList = numpy.array(importance) * numpy.array(stakePerNode)
-    #print("Priority list for cover traffic allocation a(n) = ", ctPriorityList)
+    print("Weighted downstream stake per node p(n) = ", weight)
+    ctImportanceList = numpy.array(weight) * numpy.array(stakePerNode)
+    #print("Priority list for cover traffic allocation a(n) = ", ctImportanceList)
 
     # find top maxCtChannels to which CT node should open channel directly
-    sortedPrioList = [i[0] for i in sorted(enumerate(ctPriorityList), key=lambda x:x[1], reverse=True)]
+    sortedPrioList = [i[0] for i in sorted(enumerate(ctImportanceList), key=lambda x:x[1], reverse=True)]
 
     topStakeIndices = sortedPrioList[-maxCtChannels:]
-    topStakeAmounts = [ctPriorityList[i[1]] for i in enumerate(topStakeIndices)]
+    topStakeAmounts = [ctImportanceList[i[1]] for i in enumerate(topStakeIndices)]
 
     #print(sortedPrioList)
     ctChannelBalance = [0] * maxCtChannels 
     ctChannelParty = [0] * maxCtChannels # counterparty of payment channel that CT node opens
     for i in enumerate(topStakeAmounts):
-        ctChannelBalance[i[0]] = 5  # every channel is funded with same amount
+        ctChannelBalance[i[0]] = channelStake # every channel is funded with same amount
 
         # channel opening is randomized
         ctChannelParty[i[0]] = int(numpy.random.rand() *(topStakeIndices[i[0]]))
@@ -103,5 +110,5 @@ def openCtChannels(stake):
     # all the nodes with non zero stake amount to whom payment channels have been opened  
     print("--> channels opened to nodes: ", ctChannelParty)
     #print("--> channel allocations: ", ctChannelBalance)
-    #print("CT priority list: ", ctPriorityList
-    return ctChannelBalance, ctChannelParty, ctPriorityList
+    print("CT priority list: ", ctImportanceList)
+    return ctChannelBalance, ctChannelParty, ctImportanceList

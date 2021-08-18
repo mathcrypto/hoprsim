@@ -7,13 +7,11 @@ import hoprsim
 
 # the value 15 in setupStake function is number of nodes since we are testing for a small network size. This value can change of course to higher or smaller values
 # The second and third values represent the minimum and maximum channels number
-stake = hoprsim.setupStake(15, 2, 5)
+stake = hoprsim.setupStake(20, 5, 10)
 #print("stake matrix: ", numpy.matrix(stake))
 
-ctChannelBalance, ctChannelParty, ctPriorityList = hoprsim.openCtChannels(stake)
+ctChannelBalance, ctChannelParty, ctImportanceList = hoprsim.openCtChannels(stake)
 
-#print("balances: ", ctChannelBalance)
-#print("priorities:", ctPriorityList)
 
 pathLength = 3
 
