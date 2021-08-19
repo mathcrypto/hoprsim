@@ -14,25 +14,15 @@ stake = [
    [0, 0, 0, 1],
    [0, 0, 0, 0]
 ]
-#stake = [[Decimal(i) for i in j] for j in stake]
-#print("stake", stake)
-#
-#define a stake manually and test with it 
-#print("stake matrix: ", numpy.matrix(stake))
 
-ctChannelBalance, ctChannelParty, ctImportanceList = hoprsim.openCtChannels(stake)
+importance = hoprsim.calcImportance(stake)
+print("importance ", importance);
 
-pathLength = 3
+firstCtChannel = hoprsim.openCtChannels(importance)
+print("firstCtChannel", firstCtChannel)
 
-
-# map random number onto the stake distribution of the current node (starting with CT node)
-count = [0] * len(stake)
-for i in range(1000):
-   counterparty = hoprsim.selectChannel(ctChannelBalance, ctChannelParty)
-   count[counterparty] += 1
-
-print("stake distribution: ", count)
-
-counterparty = hoprsim.selectChannel(ctChannelBalance, ctChannelParty)
-#print("first counterparty: ", counterparty)
-
+ctNodeBalance = 1000
+balancePerCtChannel = 5
+ctChannelBalances, ctNodeBalance = hoprsim.openInitialCtChannels(ctNodeBalance, balancePerCtChannel, importance)
+print("channel balances", ctChannelBalances)
+print("remaining ct node balance: ", ctNodeBalance)

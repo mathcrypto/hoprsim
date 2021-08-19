@@ -64,23 +64,18 @@ def selectChannel(weights, weightIndexToNodeLUT):
         #print("selected last counterparty", counterparty)
     return counterparty
 
+# TODO:
+# 1. calculate importance
+# 2. open a channel given importances
+# 3. open channels until CT node runs out of funds
 
-# opens a random payment channel
-# takes the stake matrix as parameter and returns list of balances and counter party ids
-def openCtChannels(stake):
- 
-    # number of channels we want to open
-    maxCtChannels = 5
-
-    # stake value for each opened channel. we fix this value for testing purposes
-    channelStake= 5
+def calcImportance(stake):
 
     # get total stake per node
     stakePerNode = [Decimal(sum(e)) for e in stake]
 
     totalStake = sum(stakePerNode)
-   
-    otherTotalStake = [totalStake - i for i in stakePerNode]
+
     n = len(stake)
     weight = [0] * n
     importance = [0] * n
@@ -91,48 +86,21 @@ def openCtChannels(stake):
             weight[y] += 0 if stakePerNode[y]==0 else numpy.sqrt(stake[y][x]/stakePerNode[y] * stakePerNode[x])
 
     #print("Weighted downstream stake per node p(n) = ", weight)
-    ctImportanceList = numpy.array(weight) * numpy.array(stakePerNode)
-    #print("Priority list for cover traffic allocation a(n) = ", ctImportanceList)
-
-    # find top maxCtChannels to which CT node should open channel directly
-    sortedPrioList = [i[0] for i in sorted(enumerate(ctImportanceList), key=lambda x:x[1], reverse=True)]
-
-    ##selectChannel(sortedPrioList,  )
-    topStakeIndices = sortedPrioList[-maxCtChannels:]
-    topStakeAmounts = [ctImportanceList[i[1]] for i in enumerate(topStakeIndices)]
-    #print("topStakeIndices:", topStakeIndices)
-
-    #print(sortedPrioList)
-    ctChannelBalance = [0] * maxCtChannels 
-    ctChannelParty = [0] * maxCtChannels # counterparty of payment channel that CT node opens
-    for i in enumerate(topStakeIndices):
-        ctChannelBalance[i[0]] = channelStake # every channel is funded with same amount
-
-        # channel opening is randomized
-        #ctChannelParty[i[0]] = int(numpy.random.rand() *(topStakeIndices[i[0]]))
-        #ctChannelParty[i[0]] = int(numpy.random.rand() * (sortedPrioList[i[0]]))
-        #print("--> sorted priority list: ", sortedPrioList[i[0]])
-        ctChannelParty[i[0]] = int(selectChannel(weight, ctImportanceList))
-        #print("--> sorted priority list: ", ctImportanceList[i[0]])
-    # all the nodes with non zero stake amount to whom payment channels have been opened  
-    print("--> channels opened to nodes with stake: ", ctChannelParty)
-    #print("--> channel allocations: ", ctChannelBalance)
-    # try with different number of channels from minChannelsPerNode to maxChannelsPerNode   
-    numChannels = [2,3,4,5,6,7,8,9,10]
-    #s_actual is the sum of importance of the actually chosen nodes to which channels were opened
-    # ctChannelParty is the list of nodes to whom channels have been opened so we should get each of their stake distribution and that do the sum which will represent the actual case
-    #s_best is the sum of the best case nodes
-   
-    s_best = 1000
-    #print('best case:', s_best)
-    # accuracy average or success metric is equal to s_actual / s_best
-    accuracyAverage = [0.51,0.52,0.64,0.57,0.7,0.63,0.59,0.66,0.64]
-  
-    plt.plot(numChannels, accuracyAverage)
-    plt.title('Accuracy average Vs Number of Channels')
-    plt.xlabel('Number of Channels')
-    plt.ylabel('Accuracy Average')
-    plt.show()
+    importanceList = numpy.array(weight) * numpy.array(stakePerNode)
+    return importanceList;
 
 
-    return ctChannelBalance, ctChannelParty, ctImportanceList
+# opens a random payment channel
+# takes the stake matrix as parameter and returns list of balances and counter party ids
+def openCtChannels(importance):
+
+    channel = selectChannel(importance, [i for i in range(len(importance))])
+    
+    return channel
+
+def openInitialCtChannels(ctNodeBalance, balancePerCtChannel, importance):
+    ctChannelBalances = [0 for i in range(len(importance))]
+    while (ctNodeBalance >= balancePerCtChannel):
+        ctChannelBalances[openCtChannels(importance)] += balancePerCtChannel
+        ctNodeBalance -= balancePerCtChannel
+    return ctChannelBalances, ctNodeBalance
