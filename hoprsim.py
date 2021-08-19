@@ -115,3 +115,14 @@ def openCtChannels(stake):
     #print("--> channel allocations: ", ctChannelBalance)
     print("CT priority list: ", ctImportanceList)
     return ctChannelBalance, ctChannelParty, ctImportanceList
+
+    
+# try different number of channels from min   
+#numChannels = [1920,1930,1940,1950,1960,1970,1980,1990,2000,2010]
+#accuracyAverage = [9.8,12,8,7.2,6.9,7,6.5,6.2,5.5,6.3]
+  
+#plt.plot(numChannels, accuracyAverage)
+#plt.title('Accuracy average Vs Number of Channels')
+#plt.xlabel('Number of Channels')
+#plt.ylabel('Accuracy Average')
+#plt.show()
