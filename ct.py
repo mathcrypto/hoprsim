@@ -19,14 +19,11 @@ pathLength = 3
 # map random number onto the stake distribution of the current node (starting with CT node)
 count = [0] * len(stake)
 for i in range(1000):
-    counterparty = hoprsim.selectChannel(ctChannelBalance, ctChannelParty)
-    count[counterparty] += 1
+   counterparty = hoprsim.selectChannel(ctChannelBalance, ctChannelParty)
+   count[counterparty] += 1
 
 print("stake distribution: ", count)
 
 counterparty = hoprsim.selectChannel(ctChannelBalance, ctChannelParty)
 #print("first counterparty: ", counterparty)
-
-
-
 

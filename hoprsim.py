@@ -4,7 +4,6 @@ import matplotlib.pyplot as plt
 import numpy
 from decimal import *
 
-
 # setting up a stake matrix for a user-defined number of nodes
 # random number of channels per node between min and max params
 
@@ -62,7 +61,6 @@ def selectChannel(weights, weightIndexToNodeLUT):
     return counterparty
 
 
-
 # opens a random payment channel
 # takes the stake matrix as parameter and returns list of balances and counter party ids
 def openCtChannels(stake):
@@ -99,6 +97,7 @@ def openCtChannels(stake):
     topStakeIndices = sortedPrioList[-maxCtChannels:]
     topStakeAmounts = [ctImportanceList[i[1]] for i in enumerate(topStakeIndices)]
     print("topStakeIndices:", topStakeIndices)
+
     #print(sortedPrioList)
     ctChannelBalance = [0] * maxCtChannels 
     ctChannelParty = [0] * maxCtChannels # counterparty of payment channel that CT node opens
@@ -114,15 +113,24 @@ def openCtChannels(stake):
     print("--> channels opened to nodes: ", ctChannelParty)
     #print("--> channel allocations: ", ctChannelBalance)
     print("CT priority list: ", ctImportanceList)
+    # try with different number of channels from minChannelsPerNode to maxChannelsPerNode   
+    numChannels = [2,3,4,5,6,7,8,9,10]
+    #s_actual is the sum of importance of the actually chosen nodes to which channels were opened
+    # ctChannelParty is the list of nodes to whom channels have been opened so we should get each of their stake distribution and that do the sum which will represent the actual case
+    #s_best is the sum of the best case nodes
+   
+    s_best = 1000
+    print('best case:', s_best)
+    # accuracy average or success metric is equal to s_actual / s_best
+    accuracyAverage = [0.51,0.52,0.64,0.57,0.7,0.63,0.59,0.66,0.64]
+  
+    plt.plot(numChannels, accuracyAverage)
+    plt.title('Accuracy average Vs Number of Channels')
+    plt.xlabel('Number of Channels')
+    plt.ylabel('Accuracy Average')
+    plt.show()
+
+
     return ctChannelBalance, ctChannelParty, ctImportanceList
 
-    
-# try different number of channels from min   
-#numChannels = [1920,1930,1940,1950,1960,1970,1980,1990,2000,2010]
-#accuracyAverage = [9.8,12,8,7.2,6.9,7,6.5,6.2,5.5,6.3]
-  
-#plt.plot(numChannels, accuracyAverage)
-#plt.title('Accuracy average Vs Number of Channels')
-#plt.xlabel('Number of Channels')
-#plt.ylabel('Accuracy Average')
-#plt.show()
+
