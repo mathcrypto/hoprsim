@@ -9,7 +9,7 @@ from decimal import *
 
 def setupStake(
         # Number of nodes in the network. This number can be changed to test with small and large network size
-        numNodes=100,
+        numNodes=10,
         # the minimum number of channels a node can open
         minChannelsPerNode=2,
         # the maximum number of channels a node can open 
@@ -44,7 +44,9 @@ def setupStake(
                 counterparty = counterparty + 1
             stake[x][counterparty] = stakePerChannel
             stake = [[Decimal(i) for i in j] for j in stake]
+            
     return stake
+
 
 def selectChannel(weights, weightIndexToNodeLUT):
     rand = numpy.random.rand()
@@ -68,7 +70,7 @@ def selectChannel(weights, weightIndexToNodeLUT):
 def openCtChannels(stake):
  
     # number of channels we want to open
-    maxCtChannels = 3
+    maxCtChannels = 5
 
     # stake value for each opened channel. we fix this value for testing purposes
     channelStake= 5
@@ -88,7 +90,7 @@ def openCtChannels(stake):
             #weight(channel) = sqrt(balance(channel) / stake(channel.source) * stake(channel.destination))
             weight[y] += 0 if stakePerNode[y]==0 else numpy.sqrt(stake[y][x]/stakePerNode[y] * stakePerNode[x])
 
-    print("Weighted downstream stake per node p(n) = ", weight)
+    #print("Weighted downstream stake per node p(n) = ", weight)
     ctImportanceList = numpy.array(weight) * numpy.array(stakePerNode)
     #print("Priority list for cover traffic allocation a(n) = ", ctImportanceList)
 
@@ -98,7 +100,7 @@ def openCtChannels(stake):
     ##selectChannel(sortedPrioList,  )
     topStakeIndices = sortedPrioList[-maxCtChannels:]
     topStakeAmounts = [ctImportanceList[i[1]] for i in enumerate(topStakeIndices)]
-    print("topStakeIndices:", topStakeIndices)
+    #print("topStakeIndices:", topStakeIndices)
 
     #print(sortedPrioList)
     ctChannelBalance = [0] * maxCtChannels 
@@ -109,13 +111,12 @@ def openCtChannels(stake):
         # channel opening is randomized
         #ctChannelParty[i[0]] = int(numpy.random.rand() *(topStakeIndices[i[0]]))
         #ctChannelParty[i[0]] = int(numpy.random.rand() * (sortedPrioList[i[0]]))
-        print("--> sorted priority list: ", sortedPrioList[i[0]])
+        #print("--> sorted priority list: ", sortedPrioList[i[0]])
         ctChannelParty[i[0]] = int(selectChannel(weight, ctImportanceList))
-
+        #print("--> sorted priority list: ", ctImportanceList[i[0]])
     # all the nodes with non zero stake amount to whom payment channels have been opened  
     print("--> channels opened to nodes with stake: ", ctChannelParty)
     #print("--> channel allocations: ", ctChannelBalance)
-    print("CT priority list: ", ctImportanceList)
     # try with different number of channels from minChannelsPerNode to maxChannelsPerNode   
     numChannels = [2,3,4,5,6,7,8,9,10]
     #s_actual is the sum of importance of the actually chosen nodes to which channels were opened
@@ -123,7 +124,7 @@ def openCtChannels(stake):
     #s_best is the sum of the best case nodes
    
     s_best = 1000
-    print('best case:', s_best)
+    #print('best case:', s_best)
     # accuracy average or success metric is equal to s_actual / s_best
     accuracyAverage = [0.51,0.52,0.64,0.57,0.7,0.63,0.59,0.66,0.64]
   
