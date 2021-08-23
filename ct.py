@@ -43,35 +43,38 @@ print("channel balances", ctChannelBalances)
 print("remaining ct node balance: ", ctNodeBalance)
 
 
-#for w in range(10):
+#for w in range(4):
 for i in range(len(stake)):
    if ctChannelBalances[i] == 0 :
       importance[i] = 0
          
-hops = 3
-ctNode = [0] * hops 
-#table = [0] * 3
-nodeBalances = [0 for j in range(len(importance))]
+   hops = 3
+   ctNode = [0] * hops 
+   #table = [0] * 3
 for j in range (hops):
    ctNode[j] = hoprsim.randomPickWeightedByImportance(importance) 
    importance = hoprsim.calcImportance(stake)
    # give away 1 HOPR reward to nodes selected in the path
-   ctChannelBalances[ctNode[j]] += 1
-   print("Node's balance after reward", ctChannelBalances[ctNode[j]])
+   nodePayout = ctChannelBalances
+   #nodePayout[ctNode[j]] = ctChannelBalances[ctNode[j]]
+   nodePayout[ctNode[j]] += 1
+   #print("Node's balance after reward", nodePayout[ctNode[j]])
    #print("Node's balance ", ctChannelBalances[j])
    dele = int(ctNode[j])
    importance[dele] = 0
-   print("channel balances", ctChannelBalances)
+   #print("channel balances", ctChannelBalances)
+   
       
    
    for i in range(len(stake)):
       if stake[dele][i] == 0 :
          importance[i] = 0
 print("ctNode", ctNode)
+print("channel balances", nodePayout)
    
 #table = [['w', 'ctNodes', 'ctChannelBalances'], [w, ctNode, ctChannelBalances]]
 #print("table", table)
-
+ 
 
 
 
