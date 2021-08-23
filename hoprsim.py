@@ -90,14 +90,14 @@ def calcImportance(stake):
     return importanceList;
 
 
-# opens a random payment channel
-# takes the stake matrix as parameter and returns list of balances and counter party ids
+
+# pick a random node based on its importance
 def randomPickWeightedByImportance(importance):
 
     channel = selectChannel(importance, [i for i in range(len(importance))])
     
     return channel
-
+# opens a random payment channel given its importance
 def openInitialCtChannels(ctNodeBalance, balancePerCtChannel, importance):
     ctChannelBalances = [0 for i in range(len(importance))]
     while (ctNodeBalance >= balancePerCtChannel):
