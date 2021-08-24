@@ -40,8 +40,10 @@ hops = 3
 n = len(stake)
 #ctChannelBalances, ctNodeBalance = hoprsim.openInitialCtChannels(ctNodeBalance, balancePerCtChannel, importance)
 #print("channel balances", ctChannelBalances)
- 
-for w in range(10):
+numTests = 10
+totalPayout = [0] * numTests
+totalCtNodes = [0] * numTests
+for w in range(numTests):
    ctNodeBalance = 1000
    ctChannelBalances, ctNodeBalance = hoprsim.openInitialCtChannels(ctNodeBalance, balancePerCtChannel, importance)
    print("channel balances", ctChannelBalances)
@@ -64,12 +66,14 @@ for w in range(10):
       for i in range(len(stake)):
          if stake[dele][i] == 0 :
             importance[i] = 0
-
+    
+   totalPayout[w] = nodePayout
+   totalCtNodes[w] = ctNode
    print("nodes Payout", nodePayout) 
    print("ctNode", ctNode)
-   
-#table = [['w', 'ctNodes', 'ctChannelBalances'], [w, ctNode, ctChannelBalances]]
-#print("table", table)
+#print("payout", totalPayout)   
+table = [['total CT Nodes', 'total Payout'], [totalCtNodes, totalPayout]]
+print("table", table)
  
 
 
