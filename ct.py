@@ -43,38 +43,43 @@ n = len(stake)
 numTests = 10
 totalPayout = [0] * numTests
 totalCtNodes = [0] * numTests
+ctNodeBalance = 1000
+
 for w in range(numTests):
-   ctNodeBalance = 1000
+   remainingctNodeBalance = ctNodeBalance
    ctChannelBalances, ctNodeBalance = hoprsim.openInitialCtChannels(ctNodeBalance, balancePerCtChannel, importance)
    print("channel balances", ctChannelBalances)
-   print("remaining ct node balance: ", ctNodeBalance)
+   print("remaining ct node balance: ", remainingctNodeBalance)
   
    for i in range(len(stake)):
       if ctChannelBalances[i] == 0 :
          importance[i] = 0
-   ctNode = [0] * hops     
+   pathIndices = [0] * hops     
    nodePayout = [0] * n
    for j in range (hops):
-      ctNode[j] = hoprsim.randomPickWeightedByImportance(importance) 
+      pathIndices[j] = hoprsim.randomPickWeightedByImportance(importance) 
       importance = hoprsim.calcImportance(stake)
       # give equal payout 1 HOPR reward to nodes selected in the path
             
-      nodePayout[ctNode[j]] += 1
-      dele = int(ctNode[j])
+      nodePayout[pathIndices[j]] += 1
+      dele = int(pathIndices[j])
       importance[dele] = 0
    
       for i in range(len(stake)):
          if stake[dele][i] == 0 :
             importance[i] = 0
-    
-   totalPayout[w] = nodePayout
-   totalCtNodes[w] = ctNode
+   # create node payout per node 
+   #totalPayout[w] = nodePayout
+   totalCtNodes[w] = pathIndices
    print("nodes Payout", nodePayout) 
-   print("ctNode", ctNode)
-#print("payout", totalPayout)   
-table = [['total CT Nodes', 'total Payout'], [totalCtNodes, totalPayout]]
-print("table", table)
- 
+   print("ctNode", pathIndices)
+totalPayout = sum(nodePayout[w] for w in range (numTests))
+print("payout", totalPayout)  
+# exp node 2 has been chosen 20 times for example  
+#table = [['total CT Nodes', 'total Payout'], [totalpathIndices, totalPayout]]
+#print("table", table)
+#accuracyAverage = [0.51,0.52,0.64,0.57,0.7,0.63,0.59,0.66,0.64]
+
 
 
 
