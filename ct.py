@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import hoprsim
 
 
-
+'''
 stake = [
    [0, 2, 0, 0, 0, 0, 8, 0, 12, 0], 
    [0, 0, 1, 0, 0, 0, 0, 7, 0, 0], 
@@ -25,7 +25,7 @@ stake = [
    [0, 0, 10], 
    [0, 1, 0]
 ]
-'''
+
 
 importance = hoprsim.calcImportance(stake)
 print("importance ", importance)
@@ -36,46 +36,50 @@ print("sortedPrioList", sortedPrioList)
 
 ctChannel = [0] * len(stake)
 balancePerCtChannel = 500
+hops = 3
+n = len(stake)
+#ctChannelBalances, ctNodeBalance = hoprsim.openInitialCtChannels(ctNodeBalance, balancePerCtChannel, importance)
+#print("channel balances", ctChannelBalances)
+numTests = 10
+totalPayout = [0] * numTests
+totalCtNodes = [0] * numTests
 ctNodeBalance = 1000
-#balancePerCtChannel = 5
-ctChannelBalances, ctNodeBalance = hoprsim.openInitialCtChannels(ctNodeBalance, balancePerCtChannel, importance)
-print("channel balances", ctChannelBalances)
-print("remaining ct node balance: ", ctNodeBalance)
 
-
-for w in range(10):
+for w in range(numTests):
+   remainingctNodeBalance = ctNodeBalance
+   ctChannelBalances, ctNodeBalance = hoprsim.openInitialCtChannels(ctNodeBalance, balancePerCtChannel, importance)
+   print("channel balances", ctChannelBalances)
+   print("remaining ct node balance: ", remainingctNodeBalance)
+  
    for i in range(len(stake)):
       if ctChannelBalances[i] == 0 :
          importance[i] = 0
-         
-      hops = 3
-      ctNode = [0] * hops 
-      #table = [0] * 3
+   pathIndices = [0] * hops     
+   nodePayout = [0] * n
    for j in range (hops):
-      ctNode[j] = hoprsim.randomPickWeightedByImportance(importance) 
+      pathIndices[j] = hoprsim.randomPickWeightedByImportance(importance) 
       importance = hoprsim.calcImportance(stake)
       # give equal payout 1 HOPR reward to nodes selected in the path
-      nodePayout = ctChannelBalances
-      #nodePayout[ctNode[j]] = ctChannelBalances[ctNode[j]]
-      nodePayout[ctNode[j]] += 1
-      #print("Node's balance after reward", nodePayout[ctNode[j]])
-      #print("Node's balance ", ctChannelBalances[j])
-      dele = int(ctNode[j])
+            
+      nodePayout[pathIndices[j]] += 1
+      dele = int(pathIndices[j])
       importance[dele] = 0
-      #print("channel balances", ctChannelBalances)
-   
-      
    
       for i in range(len(stake)):
          if stake[dele][i] == 0 :
             importance[i] = 0
-   print("ctNode", ctNode)
-   print("channel balances", nodePayout)
-ctChannelBalances = [0]* len(importance)
-   
-#table = [['w', 'ctNodes', 'ctChannelBalances'], [w, ctNode, ctChannelBalances]]
+   # create node payout per node 
+   #totalPayout[w] = nodePayout
+   totalCtNodes[w] = pathIndices
+   print("nodes Payout", nodePayout) 
+   print("ctNode", pathIndices)
+totalPayout = sum(nodePayout[w] for w in range (numTests))
+print("payout", totalPayout)  
+# exp node 2 has been chosen 20 times for example  
+#table = [['total CT Nodes', 'total Payout'], [totalpathIndices, totalPayout]]
 #print("table", table)
- 
+#accuracyAverage = [0.51,0.52,0.64,0.57,0.7,0.63,0.59,0.66,0.64]
+
 
 
 
