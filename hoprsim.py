@@ -55,10 +55,13 @@ def selectChannel(weights, weightIndexToNodeLUT):
     counterparty = -1
     for i in enumerate(weights):
         sumWeights += i[1]
-        if sumWeights / totalWeight >= rand:
-            counterparty = weightIndexToNodeLUT[i[0]]
-            #print("selected counterparty: ", counterparty)
-            break;
+        if totalWeight == 0:
+           sumWeights = 0
+        else: 
+            if sumWeights / totalWeight >= rand:
+               counterparty = weightIndexToNodeLUT[i[0]]
+               #print("selected counterparty: ", counterparty)
+               break;
     if counterparty == -1:
         counterparty = weightIndexToNodeLUT[len(weights) - 1]
         #print("selected last counterparty", counterparty)

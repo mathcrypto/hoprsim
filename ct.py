@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import hoprsim
 
 
-
+'''
 stake = [
    [0, 2, 0, 0, 0, 0, 8, 0, 12, 0], 
    [0, 0, 1, 0, 0, 0, 0, 7, 0, 0], 
@@ -25,7 +25,7 @@ stake = [
    [0, 0, 10], 
    [0, 1, 0]
 ]
-'''
+
 
 importance = hoprsim.calcImportance(stake)
 print("importance ", importance)
@@ -36,42 +36,37 @@ print("sortedPrioList", sortedPrioList)
 
 ctChannel = [0] * len(stake)
 balancePerCtChannel = 500
-ctNodeBalance = 1000
-#balancePerCtChannel = 5
-ctChannelBalances, ctNodeBalance = hoprsim.openInitialCtChannels(ctNodeBalance, balancePerCtChannel, importance)
-print("channel balances", ctChannelBalances)
-print("remaining ct node balance: ", ctNodeBalance)
-
-
+hops = 3
+n = len(stake)
+#ctChannelBalances, ctNodeBalance = hoprsim.openInitialCtChannels(ctNodeBalance, balancePerCtChannel, importance)
+#print("channel balances", ctChannelBalances)
+ 
 for w in range(10):
+   ctNodeBalance = 1000
+   ctChannelBalances, ctNodeBalance = hoprsim.openInitialCtChannels(ctNodeBalance, balancePerCtChannel, importance)
+   print("channel balances", ctChannelBalances)
+   print("remaining ct node balance: ", ctNodeBalance)
+  
    for i in range(len(stake)):
       if ctChannelBalances[i] == 0 :
          importance[i] = 0
-         
-      hops = 3
-      ctNode = [0] * hops 
-      #table = [0] * 3
+   ctNode = [0] * hops     
+   nodePayout = [0] * n
    for j in range (hops):
       ctNode[j] = hoprsim.randomPickWeightedByImportance(importance) 
       importance = hoprsim.calcImportance(stake)
       # give equal payout 1 HOPR reward to nodes selected in the path
-      nodePayout = ctChannelBalances
-      #nodePayout[ctNode[j]] = ctChannelBalances[ctNode[j]]
+            
       nodePayout[ctNode[j]] += 1
-      #print("Node's balance after reward", nodePayout[ctNode[j]])
-      #print("Node's balance ", ctChannelBalances[j])
       dele = int(ctNode[j])
       importance[dele] = 0
-      #print("channel balances", ctChannelBalances)
-   
-      
    
       for i in range(len(stake)):
          if stake[dele][i] == 0 :
             importance[i] = 0
+
+   print("nodes Payout", nodePayout) 
    print("ctNode", ctNode)
-   print("channel balances", nodePayout)
-ctChannelBalances = [0]* len(importance)
    
 #table = [['w', 'ctNodes', 'ctChannelBalances'], [w, ctNode, ctChannelBalances]]
 #print("table", table)
