@@ -19,14 +19,15 @@ stake = [
    [0, 3, 5, 0, 0, 7, 0, 1, 9, 0]  
 ]
 
-'''
+#'''
 stake = [
    [0, 20, 0], 
    [0, 0, 10], 
    [0, 5, 0]
 ]
-'''
-stake = hoprsim.setupStake(200, 3, 20, 10, 100000, 0.1)
+#'''
+
+# stake = hoprsim.setupStake(20, 3, 20, 10, 100000, 0.1)
 importance = hoprsim.calcImportance(stake)
 # print("importance ", importance)
 sortedPrioList = [i[0] for i in sorted(enumerate(importance), key=lambda x:x[1], reverse=True)]
@@ -34,58 +35,71 @@ print("sortedPrioList", sortedPrioList)
 
 
 
-ctChannel = [0] * len(stake)
 balancePerCtChannel = 5
 hops = 3
-n = len(stake)
 
 #ctChannelBalances, ctNodeBalance = hoprsim.openInitialCtChannels(ctNodeBalance, balancePerCtChannel, importance)
 #print("channel balances", ctChannelBalances)
-numTests = 1000
-totalPayout = [0] * len(stake)
-totalCtNodes = [0] * numTests
+numTests = 10
 ctNodeBalance = 50
 payoutPerHop = 1
 
 
-for w in range(numTests):
-   remainingctNodeBalance = ctNodeBalance
-   ctChannelBalances, remainingctNodeBalance = hoprsim.openInitialCtChannels(ctNodeBalance, balancePerCtChannel, importance)
-   importanceTmp = list(importance)
-   # print("CT channel balances", ctChannelBalances)
+def runCT(
+    stake,
+    numTests=10,
+    ctNodeBalance=50,
+    payoutPerHop=1,
+    hops=3,
+    balancePerCtChannel=5
+):
 
-   # remove all importance entries for nodes to which CT node has no open channels
-   for i in range(len(stake)):
-      if ctChannelBalances[i] == 0 :
-         importanceTmp[i] = 0
+    numNodes = len(stake)
+    totalPayout = [0] * numNodes
+    ctPaths = [0] * numTests
 
-   pathIndices = [0] * hops
-   nodePayout = [0] * n
-   for j in range (hops):
-      pathIndices[j] = hoprsim.randomPickWeightedByImportance(importanceTmp)
+    for w in range(numTests):
+        remainingctNodeBalance = ctNodeBalance
+        ctChannel = [0] * numNodes
+        ctChannelBalances, remainingctNodeBalance = hoprsim.openInitialCtChannels(ctNodeBalance, balancePerCtChannel, importance)
+        importanceTmp = list(importance)
 
-      # reset importance
-      importanceTmp = list(importance)
+        # remove all importance entries for nodes to which CT node has no open channels
+        for i in range(numNodes):
+            if ctChannelBalances[i] == 0 :
+                importanceTmp[i] = 0
 
-      # give equal payout 1 HOPR reward to nodes selected in the path
-            
-      nodePayout[pathIndices[j]] += payoutPerHop
-      totalPayout[pathIndices[j]] += payoutPerHop
-      dele = int(pathIndices[j])
-      importanceTmp[dele] = 0
-   
-      # remove importance entries for nodes to which current hop has no open channels
-      for i in range(len(stake)):
-         if stake[dele][i] == 0 :
-            importanceTmp[i] = 0
-   # create node payout per node 
-   totalCtNodes[w] = pathIndices
-   #print("nodes Payout", nodePayout) 
-   #print("path indices:", pathIndices)
-#totalPayout = sum(nodePayout[w] for w in range (numTests))
+        pathIndices = [0] * hops
+        nodePayout = [0] * numNodes
+        for j in range(hops):
+            pathIndices[j] = hoprsim.randomPickWeightedByImportance(importanceTmp)
+
+            # reset importance
+            importanceTmp = list(importance)
+
+            # give equal payout 1 HOPR reward to nodes selected in the path
+            nextNodeIndex = pathIndices[j]
+            nodePayout[nextNodeIndex] += payoutPerHop
+            totalPayout[nextNodeIndex] += payoutPerHop
+            importanceTmp[nextNodeIndex] = 0
+
+            # remove importance entries for nodes to which current hop has no open channels
+            # this is used in the path selection for the next hop
+            for i in range(numNodes):
+                if stake[nextNodeIndex][i] == 0 :
+                    importanceTmp[i] = 0
+
+            # store path 
+            ctPaths[w] = pathIndices
+    return totalPayout, ctPaths
+
+totalPayout, ctPaths = runCT(stake, 10)
+
+print("paths")
+hoprsim.printArray2d(ctPaths, 0)
 
 print("stake:")
-hoprsim.printArray2d(stake)
+hoprsim.printArray2d(stake, 0)
 
 print("payout", totalPayout)
 
@@ -93,7 +107,7 @@ totalStake = numpy.sum(stake, axis=1)
 
 print("total stake:")
 hoprsim.printArray1d(totalStake)
-
+'''
 print("importance", importance)
 # exp node 2 has been chosen 20 times for example  
 #table = [['total CT Nodes', 'total Payout'], [totalpathIndices, totalPayout]]
@@ -121,4 +135,4 @@ plt.ylabel('Payout')
 plt.yscale('log')
 plt.xscale('log')
 plt.show()
-
+'''

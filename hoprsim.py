@@ -219,10 +219,14 @@ def drawGraph(stake):
 #    plt.show()
 
 
-def printArray2d(a):
+def printArray2d(a, format=1):
     for row in range(len(a)):
         for col in range (len(a[row])):
-            print("{:4.1f}".format(a[row][col]), end = " ")
+            if format == 1:
+                print("{:4.1f}".format(a[row][col]), end = " ")
+            else:
+                print("{:4.0f}".format(a[row][col]), end = " ")
+
         print()
 
 
