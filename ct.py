@@ -34,43 +34,6 @@ importance = hoprsim.calcImportance(stake)
 # print("importance ", importance)
 sortedPrioList = [i[0] for i in sorted(enumerate(importance), key=lambda x:x[1], reverse=True)]
 print("sortedPrioList", sortedPrioList)
-'''
-# find node's open channels
-s = []
-for i in range(len(importance)):
-   s = []
-   for j in range(len(importance)):
-      
-      row = stake[i][:]
-      col = stake[:][j]
-  
-      if (row[j] != 0):
-         
-        
-         s.append(j)
-         g= set(s) 
-       
-   arr= numpy.array(row[j])
-   is_all_zero = numpy.all((arr == 0))
-
-   if is_all_zero:
-      g = []
-   print("list s",i, g)
-
-
-for i in range(len(importance)):
-   for j in range(len(importance)):
-      row = stake[i][:]
-      col = stake[:][j]
-  
-      if (importance[i]== max(importance)) or ((row[j] != 0) and (col != 0)):
-         print("i", i)
-         s.append(i)
-      
-print("list s", s)
-'''
-   
-   
 
 ctChannel = [0] * len(stake)
 balancePerCtChannel = 5
@@ -79,7 +42,7 @@ n = len(stake)
 
 #ctChannelBalances, ctNodeBalance = hoprsim.openInitialCtChannels(ctNodeBalance, balancePerCtChannel, importance)
 #print("channel balances", ctChannelBalances)
-numTests = 2
+numTests = 10
 totalPayout = [0] * len(stake)
 totalCtNodes = [0] * numTests
 ctNodeBalance = 50
@@ -124,10 +87,12 @@ for w in range(numTests):
 print("path indices:", pathIndices)
    # find which nodes node j has open channels with. First time this test goes through, the node chosen should be the one with more nodes connected to it and more importance
 listImp = []
+path = sorted(pathIndices)
+print("path", path)
 for i in range(len(stake)):
    s = []
    v = []
-   if i in pathIndices : 
+   if i in path : 
       for j in range(len(stake)): 
          row = stake[i][:]
          col = stake[:][j]
@@ -148,7 +113,7 @@ for i in range(len(stake)):
 
       #if is_all_zero:
         # g = []
-      print("list s",i, g)  
+      #print("list s",i, g)  
       print("list s",i, q) 
         
 
@@ -167,21 +132,13 @@ print("list", listImp)
 # find the maximum importance value in this list
 max_value = max(listImp)
 max_index = listImp.index(max_value)
-print("Best node", pathIndices[max_index])
+print("maxIndex", max_index)
+print("Best node", path[max_index])
 
 
 
       
       
-
-# Strategy: consider node's importance as a parameter, the open channels it has with other nodes and their importance
-#for i in range (len(importance)):
-  #if importance[i] !=  0 :
-       
-
-
-
-
 
 # node with highest payout or a pretty high payout and smaller stake is a positive outlier
 l = []
@@ -197,35 +154,25 @@ for i in range (len(totalPayout)):
          l.append(j) 
    m= set(l) 
 print("positive outliers", m)          
-print("best Node", bestNode)
-
-
-
-# now that we know who is the best node (meaning the one with largest payout) we can find out why did it receive more payout than others?
-# Is is because it has the largest importance? --> Not necessarly. We have seen in some test cases that outlier nodes with less importance can receive largest Payout
-# Then it must be because it has more open channels with important nodes than others
- 
-
+print("Node with highest payout", bestNode)
 
 
 
 #print("stake:")
 #hoprsim.printArray2d(stake)
 stakeCopy = stake[:]
-print("stakeCopy", stakeCopy)
+#print("stakeCopy", stakeCopy)
 
 print("payout", totalPayout)
 
 totalStake = numpy.sum(stake, axis=1)
 
-print("total stake:")
+#print("total stake:")
 hoprsim.printArray1d(totalStake)
 
 print("importance", importance)
-# exp node 2 has been chosen 20 times for example  
-#table = [['total CT Nodes', 'total Payout'], [totalpathIndices, totalPayout]]
-#print("table", table)
-#accuracyAverage = [0.51,0.52,0.64,0.57,0.7,0.63,0.59,0.66,0.64]
+
+
 
 hoprsim.drawGraph(stake)
 plt.figure(2)
