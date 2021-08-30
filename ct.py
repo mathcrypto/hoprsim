@@ -136,6 +136,8 @@ def runCT(
       for j in indices:
         if (importance[path[i]] > importance[path[j]]):
            maxIndex = i 
+        if len(indices)==1:
+           maxIndex = i 
         
     print("Best node", path[maxIndex])
 
@@ -170,7 +172,7 @@ totalStake = numpy.sum(stake, axis=1)
 
 print("total stake:")
 hoprsim.printArray1d(totalStake)
-'''
+
 print("importance", importance)
 # exp node 2 has been chosen 20 times for example  
 #table = [['total CT Nodes', 'total Payout'], [totalpathIndices, totalPayout]]
@@ -195,4 +197,3 @@ plt.ylabel('Payout')
 plt.yscale('log')
 plt.xscale('log')
 plt.show()
-'''
